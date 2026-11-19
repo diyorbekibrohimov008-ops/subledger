@@ -7,3 +7,8 @@ dist
 .env.*
 !.env.example
 *.log
+
+# Secrets, environment variables, and deploy state
+*.env
+*.pem
+*.key
