@@ -171,7 +171,7 @@ export function DiscoveryView({
             rows={8}
             value={emailText}
             onChange={(e) => setEmailText(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800 focus:border-slate-400 focus:bg-white focus:outline-none"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800 focus:border-teal-600 focus:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
           />
 
           <div className="flex items-center justify-between gap-2">
@@ -248,7 +248,7 @@ export function DiscoveryView({
             rows={8}
             value={csvText}
             onChange={(e) => setCsvText(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800 focus:border-slate-400 focus:bg-white focus:outline-none"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800 focus:border-teal-600 focus:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
           />
 
           <div className="flex items-center justify-between gap-2">

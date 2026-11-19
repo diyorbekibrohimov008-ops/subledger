@@ -65,7 +65,40 @@ function respondWorkspace(state: WorkspaceState) {
 export function createApp({ store, getClientHtml }: AppDependencies) {
   const app = new Hono();
 
-  app.use('/api/*', cors());
+  app.use('*', async (c, next) => {
+    await next();
+    if (!c.res.headers.has('Content-Security-Policy')) {
+      c.res.headers.set(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+      );
+    }
+    c.res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+    c.res.headers.set('X-Frame-Options', 'DENY');
+    c.res.headers.set('X-Content-Type-Options', 'nosniff');
+    c.res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    c.res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  });
+
+  app.use(
+    '/api/*',
+    cors({
+      origin: (origin) => {
+        if (!origin) return origin;
+        if (
+          origin.startsWith('http://localhost:') ||
+          origin.startsWith('http://127.0.0.1:') ||
+          origin.endsWith('.vercel.app') ||
+          origin.endsWith('.netlify.app')
+        ) {
+          return origin;
+        }
+        return undefined;
+      },
+      allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization'],
+    })
+  );
 
   app.get('/api/health', async (c) => {
     const state = await store.getState();
@@ -734,11 +767,40 @@ export function createApp({ store, getClientHtml }: AppDependencies) {
   });
 
   if (getClientHtml) {
-    app.get('*', (c) => {
+    let cachedScriptHashes: string[] | null = null;
+    app.get('*', async (c) => {
       if (c.req.path.startsWith('/api/')) {
         return c.json({ error: 'Not found' }, 404);
       }
-      return c.html(getClientHtml());
+      const rawHtml = getClientHtml();
+      if (!cachedScriptHashes) {
+        const hashes: string[] = [];
+        const encoder = new TextEncoder();
+        const tagOpen = '<script';
+        const tagClose = '</script>';
+        let pos = 0;
+        while (pos < rawHtml.length) {
+          const start = rawHtml.indexOf(tagOpen, pos);
+          if (start === -1) break;
+          const gt = rawHtml.indexOf('>', start);
+          const end = gt === -1 ? -1 : rawHtml.indexOf(tagClose, gt + 1);
+          if (gt === -1 || end === -1) break;
+          const body = rawHtml.slice(gt + 1, end);
+          if (body.trim().length > 0) {
+            const digest = await globalThis.crypto.subtle.digest('SHA-256', encoder.encode(body));
+            const b64 = btoa(String.fromCharCode(...new Uint8Array(digest)));
+            hashes.push(`'sha256-${b64}'`);
+          }
+          pos = end + tagClose.length;
+        }
+        cachedScriptHashes = hashes;
+      }
+      const scriptSrc = cachedScriptHashes.length > 0 ? `'self' ${cachedScriptHashes.join(' ')}` : "'self'";
+      c.header(
+        'Content-Security-Policy',
+        `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+      );
+      return c.html(rawHtml);
     });
   }
 

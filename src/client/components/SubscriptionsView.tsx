@@ -58,9 +58,9 @@ const CATEGORIES: SubscriptionCategory[] = [
 
 const SOURCE_BADGES: Record<string, string> = {
   gmail: 'bg-sky-50 text-sky-700 border-sky-200',
-  outlook: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  outlook: 'bg-cyan-50 text-cyan-800 border-cyan-200',
   plaid: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  csv_import: 'bg-violet-50 text-violet-700 border-violet-200',
+  csv_import: 'bg-amber-50 text-amber-800 border-amber-200',
   manual: 'bg-slate-100 text-slate-700 border-slate-200',
 };
 
@@ -164,7 +164,7 @@ export function SubscriptionsView({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search vendor, owner, card..."
-              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
             />
           </div>
           <select

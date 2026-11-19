@@ -4,10 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    maxWorkers: 1,
+    fileParallelism: false,
   },
 });
