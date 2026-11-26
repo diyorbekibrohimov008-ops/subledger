@@ -103,11 +103,13 @@ export function parseSeatActivityCsv(
 
     const employeeName = nameIdx >= 0 && cols[nameIdx] ? cols[nameIdx] : employeeEmail.split('@')[0];
     const department = deptIdx >= 0 && cols[deptIdx] ? cols[deptIdx] : 'Operations';
-    const seatCost = costIdx >= 0 ? Number.parseFloat(cols[costIdx].replace(/[$,]/g, '')) || 15 : 15;
+    const rawSeatCost = costIdx >= 0 ? (cols[costIdx] ?? '').replace(/(?:US\$|CA\$|A\$)|[€£$,\s]/gi, '') : '';
+    const parsedSeatCost = rawSeatCost ? Number.parseFloat(rawSeatCost) : Number.NaN;
+    const seatCost = Number.isFinite(parsedSeatCost) && parsedSeatCost > 0 ? parsedSeatCost : 15;
     const lastSsoLoginAt = ssoIdx >= 0 && cols[ssoIdx] ? cols[ssoIdx].slice(0, 10) : null;
     const lastSlackActiveAt = slackIdx >= 0 && cols[slackIdx] ? cols[slackIdx].slice(0, 10) : null;
     const employmentStatus: EmploymentStatus =
-      empIdx >= 0 && /offboard|former|terminated|inactive/i.test(cols[empIdx])
+      empIdx >= 0 && cols[empIdx] && /offboard|former|terminated|inactive/i.test(cols[empIdx])
         ? 'offboarded'
         : 'active';
 
@@ -188,7 +190,7 @@ export function computeWorkspaceMetrics(state: WorkspaceState): WorkspaceMetrics
     upcoming.reduce((sum, s) => sum + toMonthlyUsd(s.amount, s.currency, s.billingCycle), 0)
   );
 
-  const planPriceMonthlyUsd = state.settings.planTier === 'starter_9' ? 9 : 19;
+  const planPriceMonthlyUsd = 0;
   const cledaraMonthlyBaselineUsd = 175;
   const totalMonthlyDetectedValue = monthlyZombieWasteUsd + reclaimedMonthlySavingsUsd + round2(annualHikeImpactUsd / 12);
   const netPaybackMultiple =

@@ -11,8 +11,12 @@ declare const Bun: {
 let cachedHtml: string | null = null;
 function getClientHtml(): string {
   if (!cachedHtml) {
-    const buf = Buffer.from(CLIENT_HTML_GZIP_BASE64, 'base64');
-    cachedHtml = gunzipSync(buf).toString('utf8');
+    if (!CLIENT_HTML_GZIP_BASE64.startsWith('__SUBLEDGER_')) {
+      const buf = Buffer.from(CLIENT_HTML_GZIP_BASE64, 'base64');
+      cachedHtml = gunzipSync(buf).toString('utf8');
+    } else {
+      cachedHtml = '<!doctype html><html><body>SubLedger</body></html>';
+    }
   }
   return cachedHtml;
 }

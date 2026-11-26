@@ -77,7 +77,7 @@ export function parseBankCsv(
     const cols = parseCsvLine(lines[i]);
     const date = normalizeDateCell(cols[dateIdx] ?? '');
     const rawDescriptor = cols[descIdx] ?? '';
-    const rawAmountStr = (cols[amountIdx] ?? '').replace(/[$,\s]/g, '');
+    const rawAmountStr = (cols[amountIdx] ?? '').replace(/(?:US\$|CA\$|A\$)|[€£$,\s]/gi, '');
     const numeric = Number.parseFloat(rawAmountStr);
     if (!date || !rawDescriptor || !Number.isFinite(numeric) || numeric === 0) {
       continue;

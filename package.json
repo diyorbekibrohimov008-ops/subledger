@@ -1,6 +1,7 @@
 {
   "name": "subledger",
   "version": "1.0.0",
+  "description": "Track all your recurring software bills in one place, spot price hikes, and find unused seats. 100% free forever.",
   "private": true,
   "type": "module",
   "scripts": {

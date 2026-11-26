@@ -20,6 +20,8 @@ describe('SubLedger REST API', () => {
     const wsRes = await app.request('/api/workspace');
     expect(wsRes.status).toBe(200);
     const ws = await wsRes.json();
+    expect(ws.state.settings.planTier).toBe('free');
+    expect(ws.metrics.planPriceMonthlyUsd).toBe(0);
     expect(ws.metrics.activeSubscriptionCount).toBe(12);
     expect(ws.metrics.openHikeCount).toBe(7);
     expect(ws.metrics.flaggedZombieCount).toBe(7);
@@ -96,7 +98,7 @@ describe('SubLedger REST API', () => {
     expect(text).toContain('Figma');
   });
 
-  it('discovers recurring subscriptions from bank CSV, updates hikes, switches SMB plan tiers, and serves HTML', async () => {
+  it('discovers recurring subscriptions from bank CSV, updates hikes, keeps workspace 100% free, updates seat pricing, and serves HTML', async () => {
     const app = createApp({
       store: new MemoryWorkspaceStore(),
       getClientHtml: () => '<!doctype html><html><body>SubLedger</body></html>',
@@ -129,6 +131,7 @@ describe('SubLedger REST API', () => {
     const actionData = await actionRes.json();
     expect(actionData.state.priceHikes.find((h: { id: string }) => h.id === hikeId)?.status).toBe('downgraded');
 
+    // Legacy planTier inputs are safely normalized to free ($0/mo) while updating thresholds
     const planRes = await app.request('/api/settings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -136,7 +139,32 @@ describe('SubLedger REST API', () => {
     });
     expect(planRes.status).toBe(200);
     const planData = await planRes.json();
-    expect(planData.metrics.planPriceMonthlyUsd).toBe(9);
+    expect(planData.state.settings.planTier).toBe('free');
+    expect(planData.state.settings.zombieThresholdDays).toBe(45);
+    expect(planData.metrics.planPriceMonthlyUsd).toBe(0);
+
+    // Updating a subscription recalculates pricePerSeat and supports clearing seatCount
+    const firstSubId = planData.state.subscriptions[0].id;
+    const patchSubRes = await app.request(`/api/subscriptions/${firstSubId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 200, seatCount: 10 }),
+    });
+    expect(patchSubRes.status).toBe(200);
+    const patchSubData = await patchSubRes.json();
+    const updatedSub = patchSubData.state.subscriptions.find((s: { id: string }) => s.id === firstSubId);
+    expect(updatedSub.pricePerSeat).toBe(20);
+
+    const clearSeatsRes = await app.request(`/api/subscriptions/${firstSubId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seatCount: null }),
+    });
+    expect(clearSeatsRes.status).toBe(200);
+    const clearSeatsData = await clearSeatsRes.json();
+    const clearedSub = clearSeatsData.state.subscriptions.find((s: { id: string }) => s.id === firstSubId);
+    expect(clearedSub.seatCount).toBeNull();
+    expect(clearedSub.pricePerSeat).toBeNull();
   });
 
   it('handles Vercel rewritten /api?__path=/api/... GET and POST requests cleanly', async () => {

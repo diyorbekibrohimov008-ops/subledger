@@ -128,7 +128,7 @@ export interface ConnectorState {
   description: string;
 }
 
-export type PlanTier = 'starter_9' | 'growth_19';
+export type PlanTier = 'free';
 
 export interface WorkspaceSettings {
   companyName: string;

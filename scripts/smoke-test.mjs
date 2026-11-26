@@ -83,10 +83,17 @@ try {
 
   const wsRes = await localRequest('GET', '/api/workspace');
   const ws = await wsRes.json();
+  if (ws.state.settings.planTier !== 'free' || ws.metrics.planPriceMonthlyUsd !== 0) {
+    throw new Error(
+      `Expected free $0/mo workspace, got planTier=${ws.state.settings.planTier} planPriceMonthlyUsd=${ws.metrics.planPriceMonthlyUsd}`
+    );
+  }
   console.log(
     '3. GET /api/workspace:',
     JSON.stringify({
       status: wsRes.status,
+      planTier: ws.state.settings.planTier,
+      planPriceMonthlyUsd: ws.metrics.planPriceMonthlyUsd,
       activeSubscriptionCount: ws.metrics.activeSubscriptionCount,
       openHikeCount: ws.metrics.openHikeCount,
       flaggedZombieCount: ws.metrics.flaggedZombieCount,

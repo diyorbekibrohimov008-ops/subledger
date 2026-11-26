@@ -1,6 +1,6 @@
 # SubLedger
 
-> SaaS subscription tracking ledger, automated renewal price-hike detection, and zombie seat utilization auditing for lean teams.
+> Track all your recurring software bills in one place, spot price hikes, and find unused seats. **100% Free Forever ($0/mo)** — all features unlocked, no paywalls, no credit card, and no subscription limits.
 
 > [!WARNING]
 > **Project Status — Work in Progress (Not Fully Ready)**
@@ -8,7 +8,7 @@
 
 ## Overview
 
-SubLedger gives finance leads and startup operators clear visibility into recurring SaaS spend without spreadsheet sprawl:
+SubLedger is a **100% free ($0/mo forever)** recurring software ledger that gives individuals and teams clear visibility into SaaS spend without spreadsheet sprawl or paid tiers:
 
 - **Subscription & Renewal Ledger:** Tracks active, trial, and canceling vendor contracts across multi-currency billing cycles (`USD`, `EUR`, `GBP`, `CAD`, `AUD`).
 - **Stealth Price-Hike Detection:** Detects unit price increases, tier creep, promo expirations, and FX drift across charge history and bank/CSV transaction imports.

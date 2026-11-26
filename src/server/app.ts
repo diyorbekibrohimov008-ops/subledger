@@ -56,9 +56,19 @@ function withLog(
 }
 
 function respondWorkspace(state: WorkspaceState) {
+  const normalizedState: WorkspaceState =
+    state.settings.planTier === 'free'
+      ? state
+      : {
+          ...state,
+          settings: {
+            ...state.settings,
+            planTier: 'free',
+          },
+        };
   return {
-    state,
-    metrics: computeWorkspaceMetrics(state),
+    state: normalizedState,
+    metrics: computeWorkspaceMetrics(normalizedState),
   };
 }
 
@@ -146,10 +156,7 @@ export function createApp({ store, getClientHtml }: AppDependencies) {
         typeof body.companyName === 'string' && body.companyName.trim()
           ? body.companyName.trim()
           : current.settings.companyName,
-      planTier:
-        body.planTier === 'starter_9' || body.planTier === 'growth_19'
-          ? (body.planTier as PlanTier)
-          : current.settings.planTier,
+      planTier: 'free' as PlanTier,
       zombieThresholdDays:
         typeof body.zombieThresholdDays === 'number' &&
         body.zombieThresholdDays >= 7 &&
@@ -317,6 +324,16 @@ export function createApp({ store, getClientHtml }: AppDependencies) {
     }
 
     const existing = state.subscriptions[idx];
+    const nextAmount =
+      typeof body.amount === 'number' && Number.isFinite(body.amount) && body.amount > 0
+        ? body.amount
+        : existing.amount;
+    const nextSeatCount =
+      body.seatCount === null
+        ? null
+        : typeof body.seatCount === 'number' && Number.isFinite(body.seatCount) && body.seatCount >= 0
+          ? Math.round(body.seatCount)
+          : existing.seatCount;
     const updated: Subscription = {
       ...existing,
       status:
@@ -326,10 +343,7 @@ export function createApp({ store, getClientHtml }: AppDependencies) {
         body.status === 'canceled'
           ? (body.status as SubscriptionStatus)
           : existing.status,
-      amount:
-        typeof body.amount === 'number' && body.amount > 0
-          ? body.amount
-          : existing.amount,
+      amount: nextAmount,
       billingCycle:
         body.billingCycle === 'monthly' ||
         body.billingCycle === 'annual' ||
@@ -344,10 +358,11 @@ export function createApp({ store, getClientHtml }: AppDependencies) {
         typeof body.department === 'string' && body.department.trim()
           ? body.department.trim()
           : existing.department,
-      seatCount:
-        typeof body.seatCount === 'number' && body.seatCount >= 0
-          ? body.seatCount
-          : existing.seatCount,
+      seatCount: nextSeatCount,
+      pricePerSeat:
+        nextSeatCount && nextSeatCount > 0
+          ? Math.round((nextAmount / nextSeatCount) * 100) / 100
+          : null,
     };
 
     const nextSubs = [...state.subscriptions];

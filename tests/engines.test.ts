@@ -89,13 +89,27 @@ describe('Bank/Card CSV recurring & stealth price hike detector', () => {
     expect(vercelHike?.percentIncrease).toBe(20);
     expect(vercelHike?.annualImpactUsd).toBe(288);
   });
+
+  it('parses EUR and GBP currency symbols in CSV amounts without dropping rows', () => {
+    const csv = `Date,Description,Amount
+2026-10-01,POSTHOG CLOUD,-€99.00
+2026-11-01,FIGMA TEAM,-£45.50`;
+    const txs = parseBankCsv(csv);
+    expect(txs).toHaveLength(2);
+    expect(txs[0].currency).toBe('EUR');
+    expect(txs[0].amount).toBe(99);
+    expect(txs[1].currency).toBe('GBP');
+    expect(txs[1].amount).toBe(45.5);
+  });
 });
 
 describe('Zombie Seat Detector (30+ days inactive via SSO / Slack)', () => {
-  it('flags 30+ day inactive & offboarded seats and adjusts counts dynamically with threshold changes', () => {
+  it('flags 30+ day inactive & offboarded seats, reports $0 free plan cost, and adjusts counts dynamically with threshold changes', () => {
     const demo = createDemoWorkspaceState();
     const initialMetrics = computeWorkspaceMetrics(demo);
 
+    expect(demo.settings.planTier).toBe('free');
+    expect(initialMetrics.planPriceMonthlyUsd).toBe(0);
     expect(initialMetrics.flaggedZombieCount).toBe(7);
     expect(initialMetrics.offboardedZombieCount).toBe(2);
     expect(initialMetrics.reclaimedMonthlySavingsUsd).toBe(10);
@@ -107,16 +121,18 @@ describe('Zombie Seat Detector (30+ days inactive via SSO / Slack)', () => {
     expect(stricterMetrics.offboardedZombieCount).toBe(2);
   });
 
-  it('imports seat activity CSV and evaluates inactivity accurately', () => {
+  it('imports seat activity CSV and evaluates inactivity accurately including rows with missing optional cost', () => {
     const demo = createDemoWorkspaceState();
     const csv = `vendor,employeeName,employeeEmail,department,seatCostMonthlyUsd,lastSsoLoginAt,lastSlackActiveAt,employmentStatus
 Figma,Alex Mercer,alex@northstar.studio,Design,18,2026-09-01,2026-09-02,active
-Slack,Sam Taylor,sam@northstar.studio,Ops,10,2026-11-09,2026-11-10,active`;
+Slack,Sam Taylor,sam@northstar.studio,Ops,10,2026-11-09,2026-11-10,active
+Notion,Pat Kim,pat@northstar.studio,Ops`;
 
     const seats = parseSeatActivityCsv(csv, demo);
-    expect(seats).toHaveLength(2);
+    expect(seats).toHaveLength(3);
     expect(seats[0].daysInactive).toBe(70);
     expect(seats[0].status).toBe('flagged');
     expect(seats[1].daysInactive).toBe(1);
+    expect(seats[2].seatCostMonthlyUsd).toBe(15);
   });
 });

@@ -8,7 +8,7 @@ export function createEmptyWorkspaceState(companyName = 'My Company'): Workspace
   return {
     settings: {
       companyName,
-      planTier: 'growth_19',
+      planTier: 'free',
       zombieThresholdDays: 30,
       priceHikeThresholdPct: 3,
       renewalNoticeWindowDays: 14,
@@ -720,7 +720,7 @@ export function createDemoWorkspaceState(): WorkspaceState {
   return {
     settings: {
       companyName: 'Northstar Studio (28 employees)',
-      planTier: 'growth_19',
+      planTier: 'free',
       zombieThresholdDays: 30,
       priceHikeThresholdPct: 3,
       renewalNoticeWindowDays: 14,
@@ -796,7 +796,7 @@ export function createDemoWorkspaceState(): WorkspaceState {
         id: 'log-1',
         timestamp: `${REFERENCE_TODAY}T09:15:00Z`,
         kind: 'connector_sync',
-        summary: `Zero-Setup Discovery scanned Gmail, Outlook & Plaid across 3 cards — ${subscriptions.length} subscriptions and ${priceHikes.length} stealth price hikes surfaced.`,
+        summary: `Synced Gmail, Outlook & bank feeds across 3 cards — found ${subscriptions.length} subscriptions and ${priceHikes.length} price increases.`,
         subscriptionsTouched: 12,
         hikesDetected: priceHikes.length,
         zombiesFlagged: 0,
@@ -805,7 +805,7 @@ export function createDemoWorkspaceState(): WorkspaceState {
         id: 'log-2',
         timestamp: `${REFERENCE_TODAY}T08:52:00Z`,
         kind: 'connector_sync',
-        summary: 'Zombie Seat Detector cross-checked Google Workspace SSO + Slack — 7 licenses inactive 30+ days (2 offboarded staff).',
+        summary: 'Checked Google Workspace & Slack sign-ins — found 7 seats unused for 30+ days (2 former team members).',
         subscriptionsTouched: 0,
         hikesDetected: 0,
         zombiesFlagged: 7,

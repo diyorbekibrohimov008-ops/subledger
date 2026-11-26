@@ -2,12 +2,9 @@ import { useState } from 'react';
 import {
   CheckCircle2,
   FileSpreadsheet,
-  Link2,
   Mail,
-  PlugZap,
   RefreshCw,
   Shield,
-  Sparkles,
   Upload,
 } from 'lucide-react';
 import {
@@ -52,104 +49,25 @@ export function DiscoveryView({
 
   return (
     <div className="space-y-6">
-      {/* Zero-Setup Read-Only Connectors */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              Zero-Setup Read-Only Connectors
-            </h2>
-            <p className="text-xs text-slate-500">
-              Connect existing inboxes, banks (Plaid), and SSO/Slack in 60 seconds — zero virtual card switch or banking overhaul.
-            </p>
-          </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-            <Shield className="h-3.5 w-3.5" /> Read-Only Scopes Only
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {state.connectors.map((conn) => (
-            <div
-              key={conn.id}
-              className={`flex flex-col justify-between rounded-xl border p-4 transition-colors ${
-                conn.connected
-                  ? 'border-emerald-200 bg-emerald-50/30'
-                  : 'border-slate-200 bg-slate-50/50'
-              }`}
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="text-sm font-semibold text-slate-900">{conn.name}</div>
-                    <div className="mt-0.5 text-xs font-mono text-slate-500">
-                      {conn.accountLabel}
-                    </div>
-                  </div>
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                      conn.connected
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-slate-200 text-slate-600'
-                    }`}
-                  >
-                    {conn.connected ? (
-                      <>
-                        <CheckCircle2 className="h-3 w-3" /> Connected
-                      </>
-                    ) : (
-                      'Disconnected'
-                    )}
-                  </span>
-                </div>
-                <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
-                  {conn.description}
-                </p>
-              </div>
-
-              <div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3">
-                <div className="text-[11px] text-slate-500">
-                  {conn.itemsScanned} scanned · {conn.findingsCount} findings
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => onToggleConnector(conn.id, !conn.connected)}
-                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
-                  >
-                    {conn.connected ? 'Disconnect' : 'Connect'}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => onSyncConnector(conn.id)}
-                    className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-50 cursor-pointer"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    Run Sync
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div>
+        <h2 className="text-lg font-semibold text-slate-900">Import bills</h2>
+        <p className="text-sm text-slate-500">
+          Bring in your software bills automatically by pasting a receipt, uploading a bank CSV, or syncing a read-only account.
+        </p>
       </div>
 
-      {/* Live Parser Engines */}
+      {/* Paste Receipt & Upload CSV */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        {/* Email Receipt Parser */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-          <div className="flex items-start justify-between gap-2">
+        {/* Email Receipt Importer */}
+        <div className="rounded-xl border border-slate-200/90 bg-white p-5 space-y-4">
+          <div className="flex items-start gap-2.5">
+            <Mail className="mt-0.5 h-4 w-4 text-slate-500 shrink-0" />
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-sky-700">
-                <Mail className="h-3.5 w-3.5" /> Inbox Receipt Parser
-              </div>
-              <h3 className="mt-1 text-base font-semibold text-slate-900">
-                Test Live Email / Invoice Extraction
+              <h3 className="text-sm font-semibold text-slate-900">
+                Paste an email receipt
               </h3>
               <p className="text-xs text-slate-500">
-                Paste any SaaS invoice email — extracts vendor, currency, seats, renewal date &amp; catches stealth hikes against prior invoices.
+                Paste any billing email. SubLedger pulls out the service, amount, renewal date, and checks if the price went up.
               </p>
             </div>
           </div>
@@ -180,8 +98,8 @@ export function DiscoveryView({
               onChange={(e) => setEmailSource(e.target.value as 'gmail' | 'outlook')}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700"
             >
-              <option value="gmail">Ingest via Gmail Read-Only</option>
-              <option value="outlook">Ingest via Outlook Read-Only</option>
+              <option value="gmail">From Gmail</option>
+              <option value="outlook">From Outlook</option>
             </select>
             <button
               type="button"
@@ -189,24 +107,21 @@ export function DiscoveryView({
               onClick={() => onScanInbox(emailText, emailSource)}
               className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-50 cursor-pointer"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              Parse &amp; Ingest Invoice
+              Import receipt
             </button>
           </div>
         </div>
 
-        {/* Bank / Card CSV & TrackMySubs Migration Parser */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-          <div className="flex items-start justify-between gap-2">
+        {/* Bank / Card CSV Importer */}
+        <div className="rounded-xl border border-slate-200/90 bg-white p-5 space-y-4">
+          <div className="flex items-start gap-2.5">
+            <FileSpreadsheet className="mt-0.5 h-4 w-4 text-slate-500 shrink-0" />
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                <FileSpreadsheet className="h-3.5 w-3.5" /> Card Feed &amp; Migration Importer
-              </div>
-              <h3 className="mt-1 text-base font-semibold text-slate-900">
-                Import Bank CSV / Plaid Feed / TrackMySubs Export
+              <h3 className="text-sm font-semibold text-slate-900">
+                Import a bank or card CSV
               </h3>
               <p className="text-xs text-slate-500">
-                Normalizes noisy descriptors (`STRIPE *VERCEL`, `CLOUDFLARE*`), infers billing cadence, and compares consecutive charges for stealth hikes.
+                Cleans up messy card statement names (like `STRIPE *VERCEL`), groups recurring charges, and flags price increases.
               </p>
             </div>
           </div>
@@ -220,7 +135,7 @@ export function DiscoveryView({
               }}
               className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
             >
-              Sample Bank/Card CSV
+              Sample card CSV
             </button>
             <button
               type="button"
@@ -230,7 +145,7 @@ export function DiscoveryView({
               }}
               className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
             >
-              Sample TrackMySubs Migration CSV
+              Sample TrackMySubs CSV
             </button>
             <label className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer">
               <Upload className="h-3 w-3" />
@@ -257,8 +172,8 @@ export function DiscoveryView({
               onChange={(e) => setCsvSource(e.target.value as 'csv_import' | 'plaid')}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700"
             >
-              <option value="plaid">Simulate Plaid Read-Only Feed</option>
-              <option value="csv_import">Import as CSV / TrackMySubs Migration</option>
+              <option value="plaid">Bank or card feed</option>
+              <option value="csv_import">CSV / TrackMySubs export</option>
             </select>
             <button
               type="button"
@@ -266,23 +181,94 @@ export function DiscoveryView({
               onClick={() => onScanTransactions(csvText, csvSource)}
               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50 cursor-pointer"
             >
-              <PlugZap className="h-3.5 w-3.5" />
-              Detect Recurring &amp; Hikes
+              Import CSV
             </button>
           </div>
         </div>
       </div>
 
-      {/* Zero-Banking-Overhaul Explainer */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 text-xs text-slate-600 flex items-center gap-3">
-        <Link2 className="h-4 w-4 text-slate-500 shrink-0" />
-        <span>
-          <strong>How switching works in production:</strong> Connect read-only Gmail/Outlook OAuth or Plaid Link (or set up a dedicated{' '}
-          <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-slate-800">
-            receipts@yourteam.subledger.app
-          </code>{' '}
-          forwarding alias) plus Google Workspace SSO &amp; Slack — no virtual debit card issuance or primary bank migration required.
-        </span>
+      {/* Connected Read-Only Accounts */}
+      <div className="rounded-xl border border-slate-200/90 bg-white p-5">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">
+              Connected accounts (read-only)
+            </h3>
+            <p className="text-xs text-slate-500">
+              Works alongside your existing email, cards, and team directory — no bank switch required.
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+            <Shield className="h-3.5 w-3.5" /> Read-only access
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {state.connectors.map((conn) => (
+            <div
+              key={conn.id}
+              className={`flex flex-col justify-between rounded-xl border p-4 transition-colors ${
+                conn.connected
+                  ? 'border-emerald-200 bg-emerald-50/25'
+                  : 'border-slate-200 bg-slate-50/50'
+              }`}
+            >
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="text-sm font-semibold text-slate-900">{conn.name}</div>
+                    <div className="mt-0.5 text-xs font-mono text-slate-500">
+                      {conn.accountLabel}
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                      conn.connected
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-slate-200 text-slate-600'
+                    }`}
+                  >
+                    {conn.connected ? (
+                      <>
+                        <CheckCircle2 className="h-3 w-3" /> Connected
+                      </>
+                    ) : (
+                      'Not connected'
+                    )}
+                  </span>
+                </div>
+                <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
+                  {conn.description}
+                </p>
+              </div>
+
+              <div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3">
+                <div className="text-[11px] text-slate-500">
+                  {conn.itemsScanned} checked · {conn.findingsCount} found
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onToggleConnector(conn.id, !conn.connected)}
+                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  >
+                    {conn.connected ? 'Disconnect' : 'Connect'}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onSyncConnector(conn.id)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-50 cursor-pointer"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Sync
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
