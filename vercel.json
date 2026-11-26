@@ -4,7 +4,7 @@
   "buildCommand": "npm run build:client",
   "outputDirectory": "dist/client",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api?__path=/api/$1" },
+    { "source": "/api/(.*)", "destination": "/api/vercel?__path=/api/$1" },
     { "source": "/((?!api/|assets/|favicon\\.svg).*)", "destination": "/index.html" }
   ],
   "headers": [

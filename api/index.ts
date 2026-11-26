@@ -34,7 +34,10 @@ function normalizeVercelRequest(req: Request): Request {
   const url = new URL(req.url, 'http://localhost');
   const rewrittenPath = url.searchParams.get('__path');
 
-  if (rewrittenPath && (url.pathname === '/api' || url.pathname === '/api/index' || url.pathname === '/')) {
+  if (
+    rewrittenPath &&
+    (url.pathname === '/api' || url.pathname === '/api/index' || url.pathname === '/api/vercel' || url.pathname === '/')
+  ) {
     url.pathname = rewrittenPath.startsWith('/') ? rewrittenPath : `/${rewrittenPath}`;
     url.searchParams.delete('__path');
     const init: RequestInit & { duplex?: 'half' } = {
